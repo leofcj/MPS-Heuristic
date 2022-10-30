@@ -27,7 +27,7 @@ namespace OpcenterMPSHeuristic
     public class MPSHeuristic : IMPSHeuristic
     {
         IList<Item> ItemsList = new List<Item>();
-        IList<Demand> DemandList = new List<Demand>();
+        IList<NonAggregateDemand> NADemandList = new List<NonAggregateDemand>();
         IList<Stock> StockList = new List<Stock>();
         IList<Resource> ResourceList = new List<Resource>();
         IList<MPSResults> MPSList = new List<MPSResults>();
@@ -37,185 +37,171 @@ namespace OpcenterMPSHeuristic
         {
             sharedPreactor = PreactorFactory.CreatePreactorObject(preactorComObject);
 
-            //int formatResources = preactor.GetFormatNumber("Planning Resources");
-            //int formatResourceNumber = preactor.GetFieldNumber(formatResources, "Name");
-            ////int recordnumber = preactor.ReadFieldInt(formatResources, formatResourceNumber, 198);
-            //int keyValue = 198;
-            //PrimaryKey resourcePrimaryKey = new PrimaryKey(keyValue);
-
-            //int teste = preactor.GetRecordNumber(formatResources, resourcePrimaryKey);
-            //string resourceName = preactor.ReadFieldString(formatResources, formatResourceNumber, resourcePrimaryKey);
-            //MessageBox.Show(resourceName);
-
-            //int teste = sharedPreactor.FindMatchingRecord(tblStock, clnStockItemCode, 0, "SKU1001");
-
             //MessageBox.Show(teste.ToString());
             //getDemand();
             //getCurrentStock();
             //getItems();
             //getPlanningResources();
             //calculateNetRequirements();
-            exportData();
+            //exportData();
+
+
             return 0; 
         }
 
-        public int getDemand()
-        {
+        //public int getDemand()
+        //{
                                   
-            int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
-            try
-            {
-                for (int i = 1; i <= DemandLength; i++)
-                {
-                    Demand Demand = new Demand();
-                    Demand.ItemCode = sharedPreactor.ReadFieldString(tblNonAggDemand, clnDemandItemCode, i);
-                    Demand.OrderDate = sharedPreactor.ReadFieldDateTime(tblNonAggDemand, clnDemandOrderDate, i);
-                    Demand.Quantity = sharedPreactor.ReadFieldDouble(tblNonAggDemand, clnDemandQuantity, i);
-                    DemandList.Add(Demand);
-                }
-                //MessageBox.Show("Sucesso!");
-            }
-            catch
-            {
-                MessageBox.Show("Erro!");
-            }              
+        //    int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
+        //    try
+        //    {
+        //        for (int i = 1; i <= DemandLength; i++)
+        //        {
+        //            NonAggregateDemand Demand = new NonAggregateDemand();
+        //            Demand.ItemCode = sharedPreactor.ReadFieldString(tblNonAggDemand, clnDemandItemCode, i);
+        //            Demand.OrderDate = sharedPreactor.ReadFieldDateTime(tblNonAggDemand, clnDemandOrderDate, i);
+        //            Demand.Quantity = sharedPreactor.ReadFieldDouble(tblNonAggDemand, clnDemandQuantity, i);
+        //            NADemandList.Add(Demand);
+        //        }
+        //        //MessageBox.Show("Sucesso!");
+        //    }
+        //    catch
+        //    {
+        //        MessageBox.Show("Erro!");
+        //    }              
 
-            return 0;
-        } 
+        //    return 0;
+        //} 
 
-        public int getCurrentStock()
-        {
+        //public int getCurrentStock()
+        //{
             
 
-            int StockLength = sharedPreactor.RecordCount(tblStock);
+        //    int StockLength = sharedPreactor.RecordCount(tblStock);
             
 
-            for (int i = 1; i <= StockLength; i++)
-            {
-                Stock Stock = new Stock();
-                //Stock.Type = preactor.ReadFieldString(tblStock, "Type", i);
-                Stock.ItemCode = sharedPreactor.ReadFieldString(tblStock, clnStockItemCode, i);
-                Stock.ProdnDate = sharedPreactor.ReadFieldDateTime(tblStock, clnStockProdnDate, i);
-                Stock.Qty = sharedPreactor.ReadFieldDouble(tblStock, clnStockQuantity, i);
-                StockList.Add(Stock);
-            }
+        //    for (int i = 1; i <= StockLength; i++)
+        //    {
+        //        Stock Stock = new Stock();
+        //        //Stock.Type = preactor.ReadFieldString(tblStock, "Type", i);
+        //        Stock.ItemCode = sharedPreactor.ReadFieldString(tblStock, clnStockItemCode, i);
+        //        Stock.ProdnDate = sharedPreactor.ReadFieldDateTime(tblStock, clnStockProdnDate, i);
+        //        Stock.Qty = sharedPreactor.ReadFieldDouble(tblStock, clnStockQuantity, i);
+        //        StockList.Add(Stock);
+        //    }
 
-            return 0;
+        //    return 0;
+             
+        //}
 
-        }
+        //public int getPlanningResources()
+        //{
 
-        public int getPlanningResources()
-        {
-
-            int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
-            int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
-            var dates = DemandList.Select(x => x.OrderDate).Distinct();
-            for (int i = 1; i <= ResourcesLength; i++)
-            {
-                foreach(var date in dates)
-                {
+        //    int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
+        //    int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
+        //    var dates = NADemandList.Select(x => x.OrderDate).Distinct();
+        //    for (int i = 1; i <= ResourcesLength; i++)
+        //    {
+        //        foreach(var date in dates)
+        //        {
                     
-                    Resource Resource = new Resource();
-                    Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
-                    Resource.AvailableCapacityPeriod = 40;
-                    Resource.DatePeriod = date;
-                    ResourceList.Add(Resource);
-                }
+        //            Resource Resource = new Resource();
+        //            Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
+        //            Resource.AvailableCapacityPeriod = 40;
+        //            Resource.DatePeriod = date;
+        //            ResourceList.Add(Resource);
+        //        }
                
-            }
+        //    }
 
-            return 0;
+        //    return 0;
 
-        }
+        //}
 
 
-        public int getItems()
-        {
+        //public int getItems()
+        //{
             
 
-            int ItemsLength = sharedPreactor.RecordCount(tblItem);
+        //    int ItemsLength = sharedPreactor.RecordCount(tblItem);
             
 
-            for (int i = 1; i <= ItemsLength; i++)
-            {
-                sharedPreactor.ReadFieldString(tblItem, clnItemsItemLevel, i);
-                if (sharedPreactor.ReadFieldString(tblItem, clnItemsItemLevel, i) == "Finished Product")
-                {
-                    Item Item = new Item();
-                    Item.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
-                    Item.ItemDesc = sharedPreactor.ReadFieldString(tblItem, clnItemsItemDesc, i);
-                    Item.ItemLevel = sharedPreactor.ReadFieldString(tblItem, clnItemsItemLevel, i);
-                    Item.CapacityUoM = sharedPreactor.ReadFieldString(tblItem, clnItemsCapacityUoM, i);
-                    Item.PlanningResourceGroup = sharedPreactor.ReadFieldString(tblItem, clnItemsPlanningResourceGroup, i);
-                    Item.ReorderMultiple = sharedPreactor.ReadFieldDouble(tblItem, clnItemsReorderMultiple, i);
-                    Item.MinimumReorderMultiple = sharedPreactor.ReadFieldDouble(tblItem, clnItemsMinimumReorderMultiple, i);
-                    Item.MinimumCoverDays = sharedPreactor.ReadFieldDouble(tblItem, clnItemsMinimumCoverDays, i);
-                    Item.TargetCoverDays = sharedPreactor.ReadFieldDouble(tblItem, clnItemsTargetCoverDays, i);
-                    Item.MaximumCoverDays = sharedPreactor.ReadFieldDouble(tblItem, clnItemsMaximumCoverDays, i);
-                    ItemsList.Add(Item);
-                }
-            }
+        //    for (int i = 1; i <= ItemsLength; i++)
+        //    {
+        //        sharedPreactor.ReadFieldString(tblItem, clnItemsItemLevel, i);
+        //        if (sharedPreactor.ReadFieldString(tblItem, clnItemsItemLevel, i) == "Finished Product")
+        //        {
+        //            Item Item = new Item();
+        //            Item.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
+        //            Item.ItemDesc = sharedPreactor.ReadFieldString(tblItem, clnItemsItemDesc, i);
+        //            Item.ItemLevel = sharedPreactor.ReadFieldString(tblItem, clnItemsItemLevel, i);
+        //            Item.CapacityUoM = sharedPreactor.ReadFieldString(tblItem, clnItemsCapacityUoM, i);
+        //            Item.PlanningResourceGroup = sharedPreactor.ReadFieldString(tblItem, clnItemsPlanningResourceGroup, i);
+        //            Item.ReorderMultiple = sharedPreactor.ReadFieldDouble(tblItem, clnItemsReorderMultiple, i);
+        //            Item.MinimumReorderMultiple = sharedPreactor.ReadFieldDouble(tblItem, clnItemsMinimumReorderMultiple, i);
+        //            Item.MinimumCoverDays = sharedPreactor.ReadFieldDouble(tblItem, clnItemsMinimumCoverDays, i);
+        //            Item.TargetCoverDays = sharedPreactor.ReadFieldDouble(tblItem, clnItemsTargetCoverDays, i);
+        //            Item.MaximumCoverDays = sharedPreactor.ReadFieldDouble(tblItem, clnItemsMaximumCoverDays, i);
+        //            ItemsList.Add(Item);
+        //        }
+        //    }
 
-            return 0;
-        }
+        //    return 0;
+        //}
 
-        public int calculateNetRequirements()
-        {
+        //public int calculateNetRequirements()
+        //{
 
-            getItems();
-            getDemand();
-            getCurrentStock();
-            getPlanningResources();
-            for (int i = 0; i < DemandList.Count; i++)
-            {
-                MPSResults MPSItem = new MPSResults();
-                string currentItemCode = MPSItem.ItemCode = DemandList[i].ItemCode;
-                double grossRequirements = MPSItem.GrossRequirements = DemandList[i].Quantity;
-                double initialInventory = MPSItem.BeggingStock = getItemStock(currentItemCode, DemandList[i].OrderDate);
-                double minimumLoSize = MPSItem.MinimumReorderMultiple = 123; // ajustar
+        //    //Net Req = Min(Mult(Min(Max([gross - (initial inv + subcont)],0), min lot size), standard lot size), max inv level)    
 
-                MPSItem.DemandDate = DemandList[i].OrderDate;
-                MPSItem.NetRequirements = Math.Max((grossRequirements - initialInventory), 0); 
+        //    getItems();
+        //    getDemand();
+        //    getCurrentStock();
+        //    getPlanningResources();
+        //    for (int i = 0; i < NADemandList.Count; i++)
+        //    {
+        //        MPSResults MPSItem = new MPSResults();
+        //        string currentItemCode = MPSItem.ItemCode = NADemandList[i].ItemCode;
+        //        double grossRequirements = MPSItem.GrossRequirements = NADemandList[i].Quantity; 
+        //        double initialInventory = MPSItem.BeggingStock = getItemStock(currentItemCode, NADemandList[i].OrderDate);
+        //        double minimumLoSize = MPSItem.MinimumReorderMultiple = 123; // ajustar
+        //        MPSItem.DemandDate = NADemandList[i].OrderDate;
+        //        MPSItem.NetRequirements = Math.Max((grossRequirements - initialInventory), 0); 
+        //        MPSList.Add(MPSItem);
+        //    }
 
-                MPSList.Add(MPSItem);
-            }
 
-            //var ResourcePeriodsQuery = from resource in ResourceList
-            //                                   from demand in DemandList
-            //                                   select new { resource.ResourceName, resource.AvailableCapacityPeriod, demand.OrderDate };
-            //ResourceList.Clear();
-            //foreach (var resource in ResourcePeriodsQuery){
-            //    Resource ResourcePeriods = new Resource();
-            //    ResourcePeriods.ResourceName = resource.ResourceName;
-            //    ResourcePeriods.DatePeriod = resource.OrderDate;
-            //    ResourcePeriods.AvailableCapacityPeriod = resource.AvailableCapacityPeriod;
-                
-            //    ResourceList.Add(ResourcePeriods);
-            //}
-            return 0;
-        }
 
-        public double getItemStock(string itemCode, DateTime stockDate)
-        {
+        //    return 0;
+        //}
+
+        //public double getItemStock(string itemCode, DateTime stockDate)
+        //{
         
-            double itemBeggingStock = 0;
-            foreach (Stock stock in StockList)
-            {
-                string localStock = stock.ItemCode;
-                DateTime localDate = stock.ProdnDate;
-                if (localStock == itemCode && localDate == stockDate)
-                {
-                    itemBeggingStock = stock.Qty;
-                    break;
-                }
-                else
-                {
-                    itemBeggingStock = 0;
-                }
+        //    double itemBeggingStock = 0;
+        //    foreach (Stock stock in StockList)
+        //    {
+        //        string localStock = stock.ItemCode;
+        //        DateTime localDate = stock.ProdnDate;
+        //        if (localStock == itemCode && localDate == stockDate)
+        //        {
+        //            itemBeggingStock = stock.Qty;
+        //            break;
+        //        }
+        //        else
+        //        {
+        //            itemBeggingStock = 0;
+        //        }
                
-            }
-            return itemBeggingStock;
-        }
+        //    }
+        //    return itemBeggingStock;
+        //}
+
+
+
+
+
+        //Funcao de exportar dados abaixo. 
 
         public int readExportData()
         {

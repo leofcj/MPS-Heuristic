@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OpcenterMPSHeuristic
 {
-    class Demand
+    class NonAggregateDemand
     {
         //public string Origin { get; set; }
         public string ItemCode { get; set; }

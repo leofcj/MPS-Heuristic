@@ -90,6 +90,7 @@
   <ItemGroup>
     <Compile Include="DataExport.cs" />
     <Compile Include="Declarations.cs" />
+    <Compile Include="ExportData.cs" />
     <Compile Include="Item.cs" />
     <Compile Include="ItemsResource.cs" />
     <Compile Include="MPSExport.cs" />
