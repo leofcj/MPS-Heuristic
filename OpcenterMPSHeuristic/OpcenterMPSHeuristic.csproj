@@ -94,10 +94,10 @@
     <Compile Include="Item.cs" />
     <Compile Include="ItemsResource.cs" />
     <Compile Include="MPSExport.cs" />
-    <Compile Include="MPSResults.cs" />
+    <Compile Include="Demand.cs" />
     <Compile Include="Resources.cs" />
     <Compile Include="Stock.cs" />
-    <Compile Include="Demand.cs" />
+    <Compile Include="NonAggregateDemand.cs" />
     <Compile Include="MPSHeuristic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

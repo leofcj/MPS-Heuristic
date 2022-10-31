@@ -27,10 +27,10 @@ namespace OpcenterMPSHeuristic
     public class MPSHeuristic : IMPSHeuristic
     {
         IList<Item> ItemsList = new List<Item>();
-        IList<NonAggregateDemand> NADemandList = new List<NonAggregateDemand>();
+        IList<NonAggregateDemand> NonAggDemandList = new List<NonAggregateDemand>();
         IList<Stock> StockList = new List<Stock>();
         IList<Resource> ResourceList = new List<Resource>();
-        IList<MPSResults> MPSList = new List<MPSResults>();
+        IList<Demand> DemandList = new List<Demand>();
         IList<MPSExport> MPSExportList = new List<MPSExport>();
 
         public int genMPS(ref PreactorObj preactorComObject, ref object pespComObject)
@@ -42,43 +42,99 @@ namespace OpcenterMPSHeuristic
             //getCurrentStock();
             //getItems();
             //getPlanningResources();
-            //calculateNetRequirements();
+            calculateNetRequirements();
             //exportData();
 
+            
 
             return 0; 
         }
 
-        //public int getDemand()
-        //{
-                                  
-        //    int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
-        //    try
-        //    {
-        //        for (int i = 1; i <= DemandLength; i++)
-        //        {
-        //            NonAggregateDemand Demand = new NonAggregateDemand();
-        //            Demand.ItemCode = sharedPreactor.ReadFieldString(tblNonAggDemand, clnDemandItemCode, i);
-        //            Demand.OrderDate = sharedPreactor.ReadFieldDateTime(tblNonAggDemand, clnDemandOrderDate, i);
-        //            Demand.Quantity = sharedPreactor.ReadFieldDouble(tblNonAggDemand, clnDemandQuantity, i);
-        //            NADemandList.Add(Demand);
-        //        }
-        //        //MessageBox.Show("Sucesso!");
-        //    }
-        //    catch
-        //    {
-        //        MessageBox.Show("Erro!");
-        //    }              
+        public int getDemandData()
 
-        //    return 0;
-        //} 
+
+        {
+            int demandLength = sharedPreactor.RecordCount(tblDemand);
+
+            for(int i = 1; i <= demandLength; i ++)
+            {
+                Demand Demand = new Demand();
+                
+
+            }
+            return 0;
+        }
+
+        public int calculateNetRequirements()
+        {
+            
+            // Net Req = Min(Mult(Min(Max([gross - (initial inv + subcont)],0), min lot size), standard lot size), max inv level)  
+            //calcula os estoques para abrir o initial inventory
+            sharedPreactor.Planner.CalculateStock();
+            sharedPreactor.Planner.RefreshPlannerGrid();
+            string lastCode = null;
+            int demandLength = sharedPreactor.RecordCount(tblDemand);
+            for (int i = 1; i <= demandLength; i++)
+            {
+                
+                double initialInventory = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandOpeningStock, i);
+                string currentCode = sharedPreactor.ReadFieldString(tblDemand, clnDemandCode, i);
+                
+                if (initialInventory > 0 && currentCode != lastCode)
+                {
+                    double subcontracted = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandSubcontracted, i);
+                    double grossRequirements = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandDemand, i);
+                    double minimumLotSize = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandMinimumLotSize, i);
+                    double standardLotSize = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandReorderMultiple, i);
+                    double maximumInventoryLevel = sharedPreactor.ReadFieldDouble(tblDemand, clndDemandMaximumInventoryLevel, i);
+                    double safetyInventory = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandSafetyInventory, i);
+                    double val1 = Math.Max(safetyInventory + grossRequirements - initialInventory - subcontracted, 0);
+                    double val2 = Math.Max(val1, minimumLotSize); 
+                    double val3 = Math.Ceiling(val2 / standardLotSize) * standardLotSize;
+                    double val4 = Math.Min(val3, maximumInventoryLevel);
+                    double netRequirements = val4;
+
+                    FormatFieldPair demandNetRequirements = new FormatFieldPair(sharedPreactor.GetFormatNumber(tblDemand), sharedPreactor.GetFieldNumber(tblDemand, clnDemandNetRequirements));
+                    sharedPreactor.WriteField(demandNetRequirements, i, netRequirements);
+                }
+
+                lastCode = currentCode;
+
+
+            }
+            return 0;
+        }
+
+        public int getNonAggDemand()
+        {
+
+            int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
+            try
+            {
+                for (int i = 1; i <= DemandLength; i++)
+                {
+                    NonAggregateDemand Demand = new NonAggregateDemand();
+                    Demand.ItemCode = sharedPreactor.ReadFieldString(tblNonAggDemand, clnDemandItemCode, i);
+                    Demand.OrderDate = sharedPreactor.ReadFieldDateTime(tblNonAggDemand, clnDemandOrderDate, i);
+                    Demand.Quantity = sharedPreactor.ReadFieldDouble(tblNonAggDemand, clnDemandQuantity, i);
+                    NonAggDemandList.Add(Demand);
+                }
+                //MessageBox.Show("Sucesso!");
+            }
+            catch
+            {
+                MessageBox.Show("Erro!");
+            }
+
+            return 0;
+        }
 
         //public int getCurrentStock()
         //{
-            
+
 
         //    int StockLength = sharedPreactor.RecordCount(tblStock);
-            
+
 
         //    for (int i = 1; i <= StockLength; i++)
         //    {
@@ -91,40 +147,40 @@ namespace OpcenterMPSHeuristic
         //    }
 
         //    return 0;
-             
-        //}
-
-        //public int getPlanningResources()
-        //{
-
-        //    int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
-        //    int DemandLength = sharedPreactor.RecordCount(tblNonAggDemand);
-        //    var dates = NADemandList.Select(x => x.OrderDate).Distinct();
-        //    for (int i = 1; i <= ResourcesLength; i++)
-        //    {
-        //        foreach(var date in dates)
-        //        {
-                    
-        //            Resource Resource = new Resource();
-        //            Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
-        //            Resource.AvailableCapacityPeriod = 40;
-        //            Resource.DatePeriod = date;
-        //            ResourceList.Add(Resource);
-        //        }
-               
-        //    }
-
-        //    return 0;
 
         //}
+
+        public int getPlanningResources()
+        {
+            getNonAggDemand();
+            int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
+           
+            var dates = NonAggDemandList.Select(x => x.OrderDate).Distinct();
+            for (int i = 1; i <= ResourcesLength; i++)
+            {
+                foreach (var date in dates)
+                {
+
+                    Resource Resource = new Resource();
+                    Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
+                    Resource.AvailableCapacityPeriod = 40;
+                    Resource.DatePeriod = date;
+                    ResourceList.Add(Resource);
+                }
+
+            }
+
+            return 0;
+
+        }
 
 
         //public int getItems()
         //{
-            
+
 
         //    int ItemsLength = sharedPreactor.RecordCount(tblItem);
-            
+
 
         //    for (int i = 1; i <= ItemsLength; i++)
         //    {
@@ -158,14 +214,14 @@ namespace OpcenterMPSHeuristic
         //    getDemand();
         //    getCurrentStock();
         //    getPlanningResources();
-        //    for (int i = 0; i < NADemandList.Count; i++)
+        //    for (int i = 0; i < NonAggDemandList.Count; i++)
         //    {
         //        MPSResults MPSItem = new MPSResults();
-        //        string currentItemCode = MPSItem.ItemCode = NADemandList[i].ItemCode;
-        //        double grossRequirements = MPSItem.GrossRequirements = NADemandList[i].Quantity; 
-        //        double initialInventory = MPSItem.BeggingStock = getItemStock(currentItemCode, NADemandList[i].OrderDate);
+        //        string currentItemCode = MPSItem.ItemCode = NonAggDemandList[i].ItemCode;
+        //        double grossRequirements = MPSItem.GrossRequirements = NonAggDemandList[i].Quantity; 
+        //        double initialInventory = MPSItem.BeggingStock = getItemStock(currentItemCode, NonAggDemandList[i].OrderDate);
         //        double minimumLoSize = MPSItem.MinimumReorderMultiple = 123; // ajustar
-        //        MPSItem.DemandDate = NADemandList[i].OrderDate;
+        //        MPSItem.DemandDate = NonAggDemandList[i].OrderDate;
         //        MPSItem.NetRequirements = Math.Max((grossRequirements - initialInventory), 0); 
         //        MPSList.Add(MPSItem);
         //    }
@@ -177,7 +233,7 @@ namespace OpcenterMPSHeuristic
 
         //public double getItemStock(string itemCode, DateTime stockDate)
         //{
-        
+
         //    double itemBeggingStock = 0;
         //    foreach (Stock stock in StockList)
         //    {
@@ -192,7 +248,7 @@ namespace OpcenterMPSHeuristic
         //        {
         //            itemBeggingStock = 0;
         //        }
-               
+
         //    }
         //    return itemBeggingStock;
         //}

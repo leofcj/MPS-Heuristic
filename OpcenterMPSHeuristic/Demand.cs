@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace OpcenterMPSHeuristic
 {
-    class NonAggregateDemand
+    class Demand
     {
-        //public string Origin { get; set; }
         public string ItemCode { get; set; }
-        public DateTime OrderDate { get; set; }
-        public double Quantity { get; set; }
+        public double BeggingStock { get; set; }
+        public double NetRequirements { get; set; }
+        public DateTime DemandDate { get; set; }
+        public double MPS { get; set; }
+        public string Resource { get; set; }
+        public double Subcontracted { get; set; }
+        public double GrossRequirements { get; set; }
+        public double MinimumReorderMultiple { get; set; }
+        public double ReorderMultiple { get; set; }
+        public double MaximumInventoryLevel { get; set; }
     }
 }

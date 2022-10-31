@@ -62,7 +62,12 @@ public static class Declarations
     public static string clnDemandMinDaysCover { get; } = "Min Days of Cover";
     public static string clnDemandTargetDaysCover { get; } = "Target Days of Cover";
     public static string clnDemandTotalDaysCover { get; } = "Total Days of Cover";
-
+    public static string clnDemandSubcontracted { get; } = "Subcontracted";
+    public static string clnDemandMinimumLotSize { get; } = "Minimum Reorder Quantity";
+    public static string clnDemandReorderMultiple { get; } = "Reorder Multiple";
+    public static string clndDemandMaximumInventoryLevel { get; } = "Maximum Inventory Level";
+    public static string clnDemandNetRequirements { get; } = "Net Requirements";
+    public static string clnDemandSafetyInventory { get; } = "Safety Inventory";
 
 }
 
