@@ -44,11 +44,12 @@ namespace OpcenterMPSHeuristic
             //getCurrentStock();
             //getItems();
             //getPlanningResources();
-            getItemsResourceCount();
+            calculateNetRequirements();
+            createGridControl();
             //calculateNetRequirements();
             //exportData();
 
-            
+
 
             return 0; 
         }
@@ -101,27 +102,34 @@ namespace OpcenterMPSHeuristic
         public int getItemsResourceCount(string itemCode)
         {
             int itemLength = sharedPreactor.RecordCount(tblItem);
-            
-            for(int i = 1; i <= itemLength; i ++)
+            ItemsResourceCount.Clear();
+            int count = 0;
+            for (int i = 1; i <= itemLength; i ++)
             {
                 MatrixDimensions size = sharedPreactor.MatrixFieldSize(tblItem, clnItemsPlanningResourceData, i);
                 Item Item = new Item();
                 Item.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
+                if (itemCode == Item.ItemCode.ToString())
+                {
+                    count = size.X;
+                }
                 Item.ResourceCount = size.X;
                 ItemsResourceCount.Add(Item);
                 
             }
             ItemsResourceCount = ItemsResourceCount.OrderBy(x => x.ResourceCount).ToList();
-            var codes = ItemsResourceCount.Select(x => x.ItemCode).ToList();
-            int pos = 0;
-            foreach (var code in codes)
-            {
-                if (code == itemCode)
-                {
-                    pos++;
-                }
-            }
-            return pos;
+            //var codes = ItemsResourceCount.Select(x => x.ItemCode).ToList();
+            //int pos = 0;
+            
+            //foreach (var code in codes)
+            //{
+            //    pos++;
+            //    if (code == itemCode)
+            //    {
+            //        coun = pos;
+            //    }
+            //}
+            return count;
         }
 
         //public int createGridControl()
@@ -170,6 +178,7 @@ namespace OpcenterMPSHeuristic
         public int getPlanningResources()
         {
             getNonAggDemand();
+            
             int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
 
             var dates = NonAggDemandList.Select(x => x.OrderDate).Distinct();
@@ -201,7 +210,7 @@ namespace OpcenterMPSHeuristic
                 if(Demand.NetRequirements > 0)
                 {
                     Demand.Number = sharedPreactor.ReadFieldInt(tblDemand, clnDemandNumber, i);
-                    Demand.ItemCode = sharedPreactor.ReadFieldString(tblDemand, clnDemandItemCode, i);
+                    Demand.ItemCode = sharedPreactor.ReadFieldString(tblDemand, clnDemandCode, i);
                     Demand.DemandDate = sharedPreactor.ReadFieldDateTime(tblDemand, clnDemandDate, i);
                     Demand.Resource = sharedPreactor.ReadFieldString(tblDemand, clnDemandPlanningResource, i);
                     Demand.CapacityUsed = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandCapacityUsed, i);
