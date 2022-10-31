@@ -19,7 +19,7 @@ namespace OpcenterMPSHeuristic
         public double TargetCoverDays { get; set; }
         public double MaximumCoverDays { get; set; }
         public double NetRequirements { get; set; }
-
+        public int ResourceCount { get; set; }
 
     }
 }

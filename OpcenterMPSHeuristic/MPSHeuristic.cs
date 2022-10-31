@@ -31,6 +31,8 @@ namespace OpcenterMPSHeuristic
         IList<Stock> StockList = new List<Stock>();
         IList<Resource> ResourceList = new List<Resource>();
         IList<Demand> DemandList = new List<Demand>();
+        IList<Item> ItemsResourceCount = new List<Item>();
+        IList<Demand> MPSList = new List<Demand>();
         IList<MPSExport> MPSExportList = new List<MPSExport>();
 
         public int genMPS(ref PreactorObj preactorComObject, ref object pespComObject)
@@ -42,7 +44,8 @@ namespace OpcenterMPSHeuristic
             //getCurrentStock();
             //getItems();
             //getPlanningResources();
-            calculateNetRequirements();
+            getItemsResourceCount();
+            //calculateNetRequirements();
             //exportData();
 
             
@@ -50,36 +53,23 @@ namespace OpcenterMPSHeuristic
             return 0; 
         }
 
-        public int getDemandData()
 
-
-        {
-            int demandLength = sharedPreactor.RecordCount(tblDemand);
-
-            for(int i = 1; i <= demandLength; i ++)
-            {
-                Demand Demand = new Demand();
-                
-
-            }
-            return 0;
-        }
-
+        // calcula as necessidades líquidas para iniciar o processo de criação de MPS
         public int calculateNetRequirements()
         {
-            
+
             // Net Req = Min(Mult(Min(Max([gross - (initial inv + subcont)],0), min lot size), standard lot size), max inv level)  
             //calcula os estoques para abrir o initial inventory
             sharedPreactor.Planner.CalculateStock();
-            sharedPreactor.Planner.RefreshPlannerGrid();
+
             string lastCode = null;
             int demandLength = sharedPreactor.RecordCount(tblDemand);
             for (int i = 1; i <= demandLength; i++)
             {
-                
+
                 double initialInventory = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandOpeningStock, i);
                 string currentCode = sharedPreactor.ReadFieldString(tblDemand, clnDemandCode, i);
-                
+
                 if (initialInventory > 0 && currentCode != lastCode)
                 {
                     double subcontracted = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandSubcontracted, i);
@@ -89,7 +79,7 @@ namespace OpcenterMPSHeuristic
                     double maximumInventoryLevel = sharedPreactor.ReadFieldDouble(tblDemand, clndDemandMaximumInventoryLevel, i);
                     double safetyInventory = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandSafetyInventory, i);
                     double val1 = Math.Max(safetyInventory + grossRequirements - initialInventory - subcontracted, 0);
-                    double val2 = Math.Max(val1, minimumLotSize); 
+                    double val2 = Math.Max(val1, minimumLotSize);
                     double val3 = Math.Ceiling(val2 / standardLotSize) * standardLotSize;
                     double val4 = Math.Min(val3, maximumInventoryLevel);
                     double netRequirements = val4;
@@ -102,8 +92,54 @@ namespace OpcenterMPSHeuristic
 
 
             }
+            sharedPreactor.Planner.RefreshPlannerGrid();
             return 0;
         }
+
+
+
+        public int getItemsResourceCount(string itemCode)
+        {
+            int itemLength = sharedPreactor.RecordCount(tblItem);
+            
+            for(int i = 1; i <= itemLength; i ++)
+            {
+                MatrixDimensions size = sharedPreactor.MatrixFieldSize(tblItem, clnItemsPlanningResourceData, i);
+                Item Item = new Item();
+                Item.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
+                Item.ResourceCount = size.X;
+                ItemsResourceCount.Add(Item);
+                
+            }
+            ItemsResourceCount = ItemsResourceCount.OrderBy(x => x.ResourceCount).ToList();
+            var codes = ItemsResourceCount.Select(x => x.ItemCode).ToList();
+            int pos = 0;
+            foreach (var code in codes)
+            {
+                if (code == itemCode)
+                {
+                    pos++;
+                }
+            }
+            return pos;
+        }
+
+        //public int createGridControl()
+        //{
+        //    var dates = NonAggDemandList.Select(x => x.OrderDate).Distinct();
+        //    int priority = 1; 
+        //    foreach (var date in dates)
+        //    {
+        //        foreach(var item in ItemsResourceCount)
+        //        {
+
+        //        }
+        //    }
+
+        //    return 0;
+        //}
+
+
 
         public int getNonAggDemand()
         {
@@ -129,6 +165,56 @@ namespace OpcenterMPSHeuristic
             return 0;
         }
 
+
+
+        public int getPlanningResources()
+        {
+            getNonAggDemand();
+            int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
+
+            var dates = NonAggDemandList.Select(x => x.OrderDate).Distinct();
+            for (int i = 1; i <= ResourcesLength; i++)
+            {
+                foreach (var date in dates)
+                {
+
+                    Resource Resource = new Resource();
+                    Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
+                    Resource.AvailableCapacityPeriod = 40;
+                    Resource.DatePeriod = date;
+                    ResourceList.Add(Resource);
+                }
+
+            }
+
+            return 0;
+
+        }
+
+        public int createGridControl()
+        {
+            int demandLength = sharedPreactor.RecordCount(tblDemand);
+            for (int i = 1; i <= demandLength; i++)
+            {
+                Demand Demand = new Demand();
+                Demand.NetRequirements = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandNetRequirements, i);
+                if(Demand.NetRequirements > 0)
+                {
+                    Demand.Number = sharedPreactor.ReadFieldInt(tblDemand, clnDemandNumber, i);
+                    Demand.ItemCode = sharedPreactor.ReadFieldString(tblDemand, clnDemandItemCode, i);
+                    Demand.DemandDate = sharedPreactor.ReadFieldDateTime(tblDemand, clnDemandDate, i);
+                    Demand.Resource = sharedPreactor.ReadFieldString(tblDemand, clnDemandPlanningResource, i);
+                    Demand.CapacityUsed = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandCapacityUsed, i);
+                    Demand.ResourceCount = getItemsResourceCount(Demand.ItemCode.ToString());
+                    DemandList.Add(Demand);
+                }
+                DemandList = DemandList.OrderBy(x => x.DemandDate).ThenBy(c => c.ResourceCount).ToList();
+            }
+                return 0;
+        }
+
+
+       
         //public int getCurrentStock()
         //{
 
@@ -150,29 +236,7 @@ namespace OpcenterMPSHeuristic
 
         //}
 
-        public int getPlanningResources()
-        {
-            getNonAggDemand();
-            int ResourcesLength = sharedPreactor.RecordCount(tblPlanningResources);
-           
-            var dates = NonAggDemandList.Select(x => x.OrderDate).Distinct();
-            for (int i = 1; i <= ResourcesLength; i++)
-            {
-                foreach (var date in dates)
-                {
 
-                    Resource Resource = new Resource();
-                    Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
-                    Resource.AvailableCapacityPeriod = 40;
-                    Resource.DatePeriod = date;
-                    ResourceList.Add(Resource);
-                }
-
-            }
-
-            return 0;
-
-        }
 
 
         //public int getItems()

@@ -26,6 +26,8 @@ public static class Declarations
     public static string clnItemsItemLevel { get; } = "Item Level";
     public static string clnItemsCapacityUoM { get; } = "Capacity UoM";
     public static string clnItemsPlanningResourceGroup { get; } = "Planning Resource Group";
+    public static string clnItemsPlanningResourceData { get; } = "Planning Resource Data";
+
     //public static string clnItemsResourceSpecificRateperHour { get; } = "";
     public static string clnItemsReorderMultiple { get; } = "Reorder Multiple";
     public static string clnItemsMinimumReorderMultiple { get; } = "Minimum Reorder Quantity";
@@ -49,6 +51,7 @@ public static class Declarations
     public static string clnResourceName { get; } = "Name";
 
     //Campos da tabela de Demand
+    public static string clnDemandNumber { get; } = "Number";
     public static string clnDemandCode { get; } = "Code";
     public static string clnDemandCapacityUsed { get; } = "Capacity Used";
     public static string clnDemandDate { get; } = "Demand Date";

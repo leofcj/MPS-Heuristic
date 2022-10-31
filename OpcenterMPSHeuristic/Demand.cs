@@ -8,6 +8,7 @@ namespace OpcenterMPSHeuristic
 {
     class Demand
     {
+        public int Number { get; set; }
         public string ItemCode { get; set; }
         public double BeggingStock { get; set; }
         public double NetRequirements { get; set; }
@@ -19,5 +20,8 @@ namespace OpcenterMPSHeuristic
         public double MinimumReorderMultiple { get; set; }
         public double ReorderMultiple { get; set; }
         public double MaximumInventoryLevel { get; set; }
+        public double CapacityUsed { get; set; }
+        public int ResourceCount { get; set; }
+        
     }
 }
