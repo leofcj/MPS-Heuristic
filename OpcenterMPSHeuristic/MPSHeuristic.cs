@@ -46,6 +46,7 @@ namespace OpcenterMPSHeuristic
             //getPlanningResources();
             calculateNetRequirements();
             createGridControl();
+            calculateMPS();
             //calculateNetRequirements();
             //exportData();
 
@@ -223,7 +224,20 @@ namespace OpcenterMPSHeuristic
         }
 
 
-       
+        public int calculateMPS()
+        {
+            int demandListLength = DemandList.Count();
+
+            for (int i = 0; i < demandListLength; i ++)
+            {
+                DemandList[i].MPS = DemandList[i].NetRequirements;
+                int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, i, DemandList[i].Number);
+                sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
+            }
+            return 0;
+        }
+
+
         //public int getCurrentStock()
         //{
 
