@@ -34,7 +34,7 @@ namespace OpcenterMPSHeuristic
         IList<Item> ItemsResourceCount = new List<Item>();
         IList<Demand> MPSList = new List<Demand>();
         IList<MPSExport> MPSExportList = new List<MPSExport>();
-
+        IList<ItemsResource> ItemsResourceData = new List<ItemsResource>();
         public int genMPS(ref PreactorObj preactorComObject, ref object pespComObject)
         {
             sharedPreactor = PreactorFactory.CreatePreactorObject(preactorComObject);
@@ -46,6 +46,7 @@ namespace OpcenterMPSHeuristic
             //getPlanningResources();
             calculateNetRequirements();
             createGridControl();
+            getItemsResourceData();
             calculateMPS();
             //exportData();
             sharedPreactor.Planner.RefreshPlannerGrid();
@@ -178,7 +179,55 @@ namespace OpcenterMPSHeuristic
             return 0;
 
         }
-        
+
+
+        public double getResourceAvaliableCapacity(string resource, DateTime date)
+        {
+            int resourcesLength = ResourceList.Count();
+            double availableCapacity = 0;
+            for (int i = 0; i < resourcesLength; i++)
+            {
+                if (ResourceList[i].ResourceName == resource && ResourceList[i].DatePeriod == date)
+                {
+                    availableCapacity = ResourceList[i].AvailableCapacityPeriodInWeek;
+                }
+            }
+            return availableCapacity;
+        }
+
+
+        public void getItemsResourceData()
+        {
+            int itemsLength = sharedPreactor.RecordCount(tblItem);
+
+            for (int i = 1; i <= itemsLength; i++)
+            {
+                ItemsResource ItemResources = new ItemsResource();
+                MatrixDimensions size = sharedPreactor.MatrixFieldSize(tblItem, clnItemsPlanningResourceData, i);
+                for (int j = 1; j <= size.X; j++)
+                {
+                    ItemResources.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
+                    ItemResources.ResourceCode = sharedPreactor.ReadFieldString(tblItem, clnItemsPlanningResourceData, j);
+                    ItemResources.RateperHour = sharedPreactor.ReadFieldDouble(tblItem, clnItemsResSpecificRateperHour, j);
+                    ItemsResourceData.Add(ItemResources);
+                }                             
+            }
+        }
+        public double getResourceRate(string itemCode, string resource)
+        {
+            int resourceDataLength = ItemsResourceData.Count();
+            double rate = 0;
+            for (int i = 0; i <= resourceDataLength; i++)
+            {   
+                if(ItemsResourceData[i].ItemCode == itemCode && ItemsResourceData[i].ResourceCode == resource)
+                {
+                    rate = ItemsResourceData[i].RateperHour;
+                }
+
+            }
+            return rate;
+        }
+
 
         public int createGridControl()
         {

@@ -10,5 +10,6 @@ namespace OpcenterMPSHeuristic
     {
         public string ItemCode { get; set; }
         public string ResourceCode { get; set; }
+        public double RateperHour { get; set; }
     }
 }
