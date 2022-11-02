@@ -10,7 +10,13 @@ namespace OpcenterMPSHeuristic
     {
 
         public string ResourceName { get; set; }
-        public double AvailableCapacityPeriod { get; set; }
+        public double AvailableCapacityPeriodInWeek { get; set; }
+        public double AvailableCapacityPeriodInMonth { get; set; }
+        public double OvertimePercent { get; set; }
         public DateTime DatePeriod { get; set; }
+        public double CapacityUsed { get; set; }
+        public string ItemCode { get; set; }
     }
-}
+    
+}   
+                        

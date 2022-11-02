@@ -47,9 +47,8 @@ namespace OpcenterMPSHeuristic
             calculateNetRequirements();
             createGridControl();
             calculateMPS();
-            //calculateNetRequirements();
             //exportData();
-
+            sharedPreactor.Planner.RefreshPlannerGrid();
 
 
             return 0; 
@@ -119,34 +118,11 @@ namespace OpcenterMPSHeuristic
                 
             }
             ItemsResourceCount = ItemsResourceCount.OrderBy(x => x.ResourceCount).ToList();
-            //var codes = ItemsResourceCount.Select(x => x.ItemCode).ToList();
-            //int pos = 0;
-            
-            //foreach (var code in codes)
-            //{
-            //    pos++;
-            //    if (code == itemCode)
-            //    {
-            //        coun = pos;
-            //    }
-            //}
+
             return count;
         }
 
-        //public int createGridControl()
-        //{
-        //    var dates = NonAggDemandList.Select(x => x.OrderDate).Distinct();
-        //    int priority = 1; 
-        //    foreach (var date in dates)
-        //    {
-        //        foreach(var item in ItemsResourceCount)
-        //        {
-
-        //        }
-        //    }
-
-        //    return 0;
-        //}
+        
 
 
 
@@ -190,7 +166,9 @@ namespace OpcenterMPSHeuristic
 
                     Resource Resource = new Resource();
                     Resource.ResourceName = sharedPreactor.ReadFieldString(tblPlanningResources, clnResourceName, i);
-                    Resource.AvailableCapacityPeriod = 40;
+                    Resource.AvailableCapacityPeriodInWeek = 40;
+                    Resource.AvailableCapacityPeriodInMonth = 170;
+                    Resource.OvertimePercent = 20;
                     Resource.DatePeriod = date;
                     ResourceList.Add(Resource);
                 }
@@ -200,6 +178,7 @@ namespace OpcenterMPSHeuristic
             return 0;
 
         }
+        
 
         public int createGridControl()
         {
@@ -230,9 +209,14 @@ namespace OpcenterMPSHeuristic
 
             for (int i = 0; i < demandListLength; i ++)
             {
-                DemandList[i].MPS = DemandList[i].NetRequirements;
-                int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, i, DemandList[i].Number);
-                sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
+                if (DemandList[i].ItemCode == "D" && DemandList[i].Resource == "L3")
+                {
+                    DemandList[i].MPS = DemandList[i].NetRequirements;
+                    int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, i, DemandList[i].Number);
+                    sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
+                    sharedPreactor.Planner.RefreshAllWindows(DemandList[i].ItemCode, 3);
+                }
+                
             }
             return 0;
         }
