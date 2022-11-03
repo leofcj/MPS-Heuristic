@@ -27,7 +27,7 @@ public static class Declarations
     public static string clnItemsCapacityUoM { get; } = "Capacity UoM";
     public static string clnItemsPlanningResourceGroup { get; } = "Planning Resource Group";
     public static string clnItemsPlanningResourceData { get; } = "Planning Resource Data";
-    public static string clnItemsResSpecificRateperHour { get; } = "Res. Specific Rate per Hour";
+    public static string clnItemsResSpecificRateperHour { get; } = "Res. Specific Rate Per Hour";
 
     //public static string clnItemsResourceSpecificRateperHour { get; } = "";
     public static string clnItemsReorderMultiple { get; } = "Reorder Multiple";

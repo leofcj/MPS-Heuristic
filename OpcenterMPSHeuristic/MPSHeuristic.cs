@@ -44,6 +44,7 @@ namespace OpcenterMPSHeuristic
             //getCurrentStock();
             //getItems();
             //getPlanningResources();
+            getPlanningResources();
             calculateNetRequirements();
             createGridControl();
             getItemsResourceData();
@@ -207,8 +208,8 @@ namespace OpcenterMPSHeuristic
                 for (int j = 1; j <= size.X; j++)
                 {
                     ItemResources.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
-                    ItemResources.ResourceCode = sharedPreactor.ReadFieldString(tblItem, clnItemsPlanningResourceData, j);
-                    ItemResources.RateperHour = sharedPreactor.ReadFieldDouble(tblItem, clnItemsResSpecificRateperHour, j);
+                    ItemResources.ResourceCode = sharedPreactor.ReadFieldString(tblItem, clnItemsPlanningResourceData, i, j);
+                    ItemResources.RateperHour = sharedPreactor.ReadFieldDouble(tblItem, clnItemsResSpecificRateperHour, i, j);
                     ItemsResourceData.Add(ItemResources);
                 }                             
             }
@@ -260,6 +261,7 @@ namespace OpcenterMPSHeuristic
             {
                 if (DemandList[i].ItemCode == "D" && DemandList[i].Resource == "L3")
                 {
+                    double capacity = getResourceAvaliableCapacity(DemandList[i].Resource, DemandList[i].DemandDate);
                     DemandList[i].MPS = DemandList[i].NetRequirements;
                     int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, i, DemandList[i].Number);
                     sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
