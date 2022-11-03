@@ -191,6 +191,7 @@ namespace OpcenterMPSHeuristic
                 if (ResourceList[i].ResourceName == resource && ResourceList[i].DatePeriod == date)
                 {
                     availableCapacity = ResourceList[i].AvailableCapacityPeriodInWeek;
+                    break;
                 }
             }
             return availableCapacity;
@@ -218,11 +219,12 @@ namespace OpcenterMPSHeuristic
         {
             int resourceDataLength = ItemsResourceData.Count();
             double rate = 0;
-            for (int i = 0; i <= resourceDataLength; i++)
+            for (int i = 0; i < resourceDataLength; i++)
             {   
                 if(ItemsResourceData[i].ItemCode == itemCode && ItemsResourceData[i].ResourceCode == resource)
                 {
                     rate = ItemsResourceData[i].RateperHour;
+                    break;
                 }
 
             }
@@ -261,7 +263,15 @@ namespace OpcenterMPSHeuristic
             {
                 if (DemandList[i].ItemCode == "D" && DemandList[i].Resource == "L3")
                 {
-                    double capacity = getResourceAvaliableCapacity(DemandList[i].Resource, DemandList[i].DemandDate);
+                    //local variables
+                    string currentResource = DemandList[i].Resource;
+                    string currentItemCode = DemandList[i].ItemCode;
+                    double currentNetRequirements = DemandList[i].NetRequirements;
+                    DateTime currentDate = DemandList[i].DemandDate;
+                    double resourceAvailableCapcity = getResourceAvaliableCapacity(currentResource, currentDate);
+                    double resourceRate = getResourceRate(currentItemCode, currentResource);
+                    double resourceNecessaryCapacity = currentNetRequirements / resourceRate;
+
                     DemandList[i].MPS = DemandList[i].NetRequirements;
                     int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, i, DemandList[i].Number);
                     sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
