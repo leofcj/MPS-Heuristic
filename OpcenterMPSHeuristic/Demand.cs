@@ -22,6 +22,8 @@ namespace OpcenterMPSHeuristic
         public double MaximumInventoryLevel { get; set; }
         public double CapacityUsed { get; set; }
         public int ResourceCount { get; set; }
+        public int ItemFitsInFull { get; set; }
+        public int ItemFitsInPartial { get; set; }
         
     }
 }

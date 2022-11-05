@@ -197,6 +197,34 @@ namespace OpcenterMPSHeuristic
             return availableCapacity;
         }
 
+        public void setResourceStats(string resource, DateTime date, double newCapacity)
+        {
+            int resourcesLength = ResourceList.Count();
+
+            for (int i = 0; i < resourcesLength; i++)
+            {
+                if (ResourceList[i].ResourceName == resource && ResourceList[i].DatePeriod == date)
+                {
+                    ResourceList[i].AvailableCapacityPeriodInWeek = newCapacity;
+                    break;
+                }
+            }
+            
+        }
+
+        public void setDemandFit(string itemCode, DateTime date, int fitsInFull, int fitsInPartial = 0)
+        {
+            int demandLength = DemandList.Count();
+            for(int i = 0; i < demandLength; i++)
+            {
+                if(DemandList[i].ItemCode == itemCode && DemandList[i].DemandDate == date)
+                {
+                    DemandList[i].ItemFitsInFull = fitsInFull;
+                    DemandList[i].ItemFitsInPartial = fitsInPartial;
+                }
+            }
+        }
+
 
         public void getItemsResourceData()
         {
@@ -204,10 +232,11 @@ namespace OpcenterMPSHeuristic
 
             for (int i = 1; i <= itemsLength; i++)
             {
-                ItemsResource ItemResources = new ItemsResource();
+                
                 MatrixDimensions size = sharedPreactor.MatrixFieldSize(tblItem, clnItemsPlanningResourceData, i);
                 for (int j = 1; j <= size.X; j++)
                 {
+                    ItemsResource ItemResources = new ItemsResource();
                     ItemResources.ItemCode = sharedPreactor.ReadFieldString(tblItem, clnItemsItemCode, i);
                     ItemResources.ResourceCode = sharedPreactor.ReadFieldString(tblItem, clnItemsPlanningResourceData, i, j);
                     ItemResources.RateperHour = sharedPreactor.ReadFieldDouble(tblItem, clnItemsResSpecificRateperHour, i, j);
@@ -247,9 +276,11 @@ namespace OpcenterMPSHeuristic
                     Demand.Resource = sharedPreactor.ReadFieldString(tblDemand, clnDemandPlanningResource, i);
                     Demand.CapacityUsed = sharedPreactor.ReadFieldDouble(tblDemand, clnDemandCapacityUsed, i);
                     Demand.ResourceCount = getItemsResourceCount(Demand.ItemCode.ToString());
+                    Demand.ItemFitsInFull = 0;
+                    Demand.ItemFitsInPartial = 0;                     
                     DemandList.Add(Demand);
                 }
-                DemandList = DemandList.OrderBy(x => x.DemandDate).ThenBy(c => c.ResourceCount).ToList();
+                DemandList = DemandList.OrderBy(x => x.DemandDate).ThenBy(c => c.ResourceCount).ThenBy(n => n.NetRequirements).ToList();
             }
                 return 0;
         }
@@ -261,24 +292,39 @@ namespace OpcenterMPSHeuristic
 
             for (int i = 0; i < demandListLength; i ++)
             {
-                if (DemandList[i].ItemCode == "D" && DemandList[i].Resource == "L3")
+                
+                //local variables
+                string currentResource = DemandList[i].Resource;
+                string currentItemCode = DemandList[i].ItemCode;
+                double currentNetRequirements = DemandList[i].NetRequirements;
+                DateTime currentDate = DemandList[i].DemandDate;
+                double resourceAvailableCapcity = getResourceAvaliableCapacity(currentResource, currentDate);
+                double resourceRate = getResourceRate(currentItemCode, currentResource);
+                double resourceNecessaryCapacity = currentNetRequirements / resourceRate;
+                double resourceOvertime = 20;
+                int fitsInFull = DemandList[i].ItemFitsInFull;
+                if (resourceNecessaryCapacity <= resourceAvailableCapcity && fitsInFull != 1)
                 {
-                    //local variables
-                    string currentResource = DemandList[i].Resource;
-                    string currentItemCode = DemandList[i].ItemCode;
-                    double currentNetRequirements = DemandList[i].NetRequirements;
-                    DateTime currentDate = DemandList[i].DemandDate;
-                    double resourceAvailableCapcity = getResourceAvaliableCapacity(currentResource, currentDate);
-                    double resourceRate = getResourceRate(currentItemCode, currentResource);
-                    double resourceNecessaryCapacity = currentNetRequirements / resourceRate;
-
+                    int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, 0, DemandList[i].Number);
                     DemandList[i].MPS = DemandList[i].NetRequirements;
-                    int record = sharedPreactor.FindMatchingRecord(tblDemand, clnDemandNumber, i, DemandList[i].Number);
                     sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
-                    sharedPreactor.Planner.RefreshAllWindows(DemandList[i].ItemCode, 3);
+                    double newCapacity = resourceAvailableCapcity - resourceNecessaryCapacity;
+                    setResourceStats(currentResource, currentDate, newCapacity);
+                    if (newCapacity >= 0)
+                    {
+                        setDemandFit(currentItemCode, currentDate, 1, 0);
+                    }
                 }
+
+                else if(resourceNecessaryCapacity > resourceAvailableCapcity && fitsInFull != 1)
+                {
+                    DemandList.Where(r => r.Resource == currentResource).
+                }
+                 
+                
                 
             }
+            sharedPreactor.Planner.CalculateStock();
             return 0;
         }
 
