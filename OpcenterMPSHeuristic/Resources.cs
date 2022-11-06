@@ -18,6 +18,7 @@ namespace OpcenterMPSHeuristic
         public DateTime DatePeriod { get; set; }
         public double CapacityUsed { get; set; }
         public string ItemCode { get; set; }
+        public string Day { get; set; }
     }
     
 }   

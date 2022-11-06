@@ -44,9 +44,9 @@ public static class Declarations
 
 
     //Campos da tabela de Demanda Não Agregada
-    public static string clnDemandItemCode { get; } = "Item Code";
-    public static string clnDemandOrderDate { get; } = "Order Date";
-    public static string clnDemandQuantity { get; } = "Quantity";
+    public static string clnNAgDemandItemCode { get; } = "Item Code";
+    public static string clnNAgDemandOrderDate { get; } = "Order Date";
+    public static string clnNAgDemandQuantity { get; } = "Quantity";
 
     //Campos da tabela de Recursos
     public static string clnResourceName { get; } = "Name";
@@ -72,6 +72,6 @@ public static class Declarations
     public static string clndDemandMaximumInventoryLevel { get; } = "Maximum Inventory Level";
     public static string clnDemandNetRequirements { get; } = "Net Requirements";
     public static string clnDemandSafetyInventory { get; } = "Safety Inventory";
-
+    public static string clnDemandDay { get; } = "Day";
 }
 

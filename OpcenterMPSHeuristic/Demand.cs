@@ -15,6 +15,7 @@ namespace OpcenterMPSHeuristic
         public DateTime DemandDate { get; set; }
         public double MPS { get; set; }
         public string Resource { get; set; }
+        public string Day { get; set; }
         public double Subcontracted { get; set; }
         public double GrossRequirements { get; set; }
         public double MinimumReorderMultiple { get; set; }
