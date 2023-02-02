@@ -440,67 +440,16 @@ namespace OpcenterMPSHeuristic
                                 setResourceStats(choosenResource, currentDate, 0, currentDay);
                                 setDemandFit(currentItemCode, currentDate, 0, 1);
                             }
-
-                        }
-                        //sharedPreactor.Planner.UpdateClosingStock(i);
-
-                       
+                        }                       
                     }
-    }
-
-                
-
-                //if (resourceNecessaryCapacity <= resourceAvailableCapacity && fitsInFull != 1)
-                //{
-                //    DemandList[i].MPS = DemandList[i].NetRequirements;
-                //    sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
-                //    double newCapacity = resourceAvailableCapacity - resourceNecessaryCapacity;
-                //    setResourceStats(choosenResource, currentDate, newCapacity);
-                //    if (newCapacity >= 0)
-                //    {
-                //        setDemandFit(currentItemCode, currentDate, 1, 0);
-                //    }
-                //}
-
-                //else if(resourceNecessaryCapacity > resourceAvailableCapacity && fitsInFull != 1)
-                //{
-                //    double possibleMPS = resourceAvailableCapacity * resourceOvertime/100 * resourceRate;
-                //    DemandList[i].MPS = possibleMPS;
-                //    sharedPreactor.WriteField(tblDemand, clnDemandMPS, record, DemandList[i].MPS);
-
-                //}
-
-
-
+                }
             }
             sharedPreactor.Planner.CalculateStock();
             return 0;
         }
 
 
-        //public int getCurrentStock()
-        //{
-
-
-        //    int StockLength = sharedPreactor.RecordCount(tblStock);
-
-
-        //    for (int i = 1; i <= StockLength; i++)
-        //    {
-        //        Stock Stock = new Stock();
-        //        //Stock.Type = preactor.ReadFieldString(tblStock, "Type", i);
-        //        Stock.ItemCode = sharedPreactor.ReadFieldString(tblStock, clnStockItemCode, i);
-        //        Stock.ProdnDate = sharedPreactor.ReadFieldDateTime(tblStock, clnStockProdnDate, i);
-        //        Stock.Qty = sharedPreactor.ReadFieldDouble(tblStock, clnStockQuantity, i);
-        //        StockList.Add(Stock);
-        //    }
-
-        //    return 0;
-
-        //}
-
-
-
+        
 
         public int getItems()
         {
